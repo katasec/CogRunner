@@ -1,0 +1,5 @@
+﻿name: "chatagent"
+prompt: "You are a helpful assistant. Please answer this question: {{input}}"
+expose:
+  path: /ask
+  method: POST

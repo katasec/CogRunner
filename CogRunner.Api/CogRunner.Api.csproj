@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.45.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.45.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.45.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CogRunner.Core\CogRunner.Core.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>
