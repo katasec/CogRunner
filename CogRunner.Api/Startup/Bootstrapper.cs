@@ -2,12 +2,10 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using Microsoft.SemanticKernel;
 using Microsoft.Extensions.Options;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using CogRunner.Api.Configuration;
-using Microsoft.SemanticKernel.Agents;
 
 public static class Bootstrapper
 {
