@@ -34,6 +34,11 @@ public static class ServiceCollectionExtensions
             return kernel;
         });
 
+        return services;
+    }
+
+    public static IServiceCollection AddChatAgent(this IServiceCollection services)
+    {
         services.AddSingleton(sp =>
         {
             var kernel = sp.GetRequiredService<Kernel>();

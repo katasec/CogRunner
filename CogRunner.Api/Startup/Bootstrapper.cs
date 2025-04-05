@@ -28,29 +28,8 @@ public static class Bootstrapper
         services.Configure<AppSettings>(configuration);
         services.AddSingleton<IValidateOptions<AppSettings>, AppSettingsValidator>();
 
-        services.AddSingleton<Kernel>(sp =>
-        {
-            var settings = sp.GetRequiredService<IOptions<AppSettings>>().Value;
+        services.AddSemanticKernel();
+        services.AddChatAgent();
 
-            var builder = Kernel.CreateBuilder();
-            builder.AddAzureOpenAIChatCompletion(
-                deploymentName: settings.AzureOpenAI.ChatDeploymentName,
-                endpoint: settings.AzureOpenAI.Endpoint,
-                apiKey: settings.AzureOpenAI.ApiKey
-            );
-
-            return builder.Build();
-        });
-
-        services.AddSingleton<ChatCompletionAgent>(sp =>
-        {
-            var kernel = sp.GetRequiredService<Kernel>();
-            return new ChatCompletionAgent
-            {
-                Name = cog.Name,
-                Instructions = cog.Prompt,
-                Kernel = kernel
-            };
-        });
     }
 }
