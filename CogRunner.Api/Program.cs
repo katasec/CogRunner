@@ -1,54 +1,28 @@
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Agents;
+using CogRunner.Api.Startup;
 using Microsoft.SemanticKernel.ChatCompletion;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
-
-// Load cog.agent.yaml
-var yaml = await File.ReadAllTextAsync("cog.agent.yaml");
-var deserializer = new DeserializerBuilder()
-    .WithNamingConvention(CamelCaseNamingConvention.Instance)
-    .Build();
-var cog = deserializer.Deserialize<CogDefinition>(yaml);
+using Microsoft.SemanticKernel.Agents;
+using Microsoft.SemanticKernel;
 
 
-// Retrieve environment variables
-var endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")
-    ?? throw new InvalidOperationException("AZURE_OPENAI_ENDPOINT environment variable is not set.");
-var apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY")
-    ?? throw new InvalidOperationException("AZURE_OPENAI_KEY environment variable is not set.");
-
-// Boot Semantic Kernel
-var kernel = Kernel.CreateBuilder()
-    .AddAzureOpenAIChatCompletion(
-        deploymentName: "gpt-4o",
-        endpoint: endpoint,
-        apiKey: apiKey
-    ).Build();
-
-var agent = new ChatCompletionAgent
-{
-    Name = cog.Name,
-    Instructions = cog.Prompt,
-    Kernel = kernel
-};
-
-
-// Expose HTTP endpoint
+// Bootstrap App
 var builder = WebApplication.CreateBuilder(args);
+var cog = await Bootstrapper.LoadCogAsync();
+Bootstrapper.RegisterServices(builder.Services, builder.Configuration, cog);
 var app = builder.Build();
 
+// Get Agent
+var agent = app.Services.GetRequiredService<ChatCompletionAgent>();
+
+// Expose endpoint
 app.MapPost(cog.Expose.Path, async (HttpRequest request) =>
 {
     using var reader = new StreamReader(request.Body);
     var input = await reader.ReadToEndAsync();
 
     var chat = new AgentGroupChat(agent);
-
     chat.AddChatMessage(new ChatMessageContent(AuthorRole.User, input));
-    var result = chat.InvokeAsync();
 
-    await foreach (var response in result)
+    await foreach (var response in chat.InvokeAsync())
     {
         return Results.Ok(response.Content);
     }
